@@ -1,0 +1,209 @@
+import math
+import logging
+import sys
+import argparse
+
+__version__ = "0.0.1"
+__author__ = "$author"
+__license__ = "$license"
+_logger = logging.getLogger(__name__)
+
+def pow(base: float, exponent: float) -> float:
+    """
+    Calculates the power of a number.
+
+    Args:
+        base (float): The base number.
+        exponent (float): The exponent.
+
+    Returns:
+        float: The result of base raised to the power of exponent.
+
+    Examples:
+    >>> pow(2, 3)
+    8.0
+    >>> pow(10, 2)
+    100.0
+    >>> pow(-2, 2)
+    4.0
+    """
+    return base ** exponent
+
+def faktorial(n: int) -> float:
+    """
+    Calculates the factorial of a number.
+
+    Args:
+        n (int): The number to calculate the factorial for.
+
+    Returns:
+        float: The factorial of the given number.
+
+    Examples:
+    >>> faktorial(5)
+    120.0
+    >>> faktorial(0)
+    1.0
+    >>> faktorial(-5)
+    ValueError: n must be a non-negative integer
+    """
+    if n < 0:
+        raise ValueError("n must be a non-negative integer")
+
+    value = float(1)
+    for i in range(1, n + 1):
+        value = value * i
+
+    return value
+
+
+def cos(x: float) -> float:
+    """
+    Calculates the cosine of an angle in radians.
+
+    Args:
+        x (float): The angle in radians.
+
+    Returns:
+        float: The cosine of the given angle.
+
+    Examples:
+    >>> cos(0)
+    1.0
+    >>> cos(math.pi / 2)
+    0.0
+    >>> cos(math.pi)
+    -1.0
+    """
+    x = x * math.pi / 180
+    value = 1
+    sign = -1
+    n = 200  # precision
+    i = 2
+    while i < n:
+        value = value + (math.pow(x, i) / faktorial(i) * sign)
+        i = i + 2
+        sign = sign * -1
+
+
+def sin(x: float) -> float:
+    """
+    Calculates the sine of an angle in radians.
+
+    Args:
+        x (float): The angle in radians.
+
+    Returns:
+        float: The sine of the given angle.
+
+    Examples:
+    >>> sin(math.pi / 2)
+    1.0
+    >>> sin(math.pi)
+    0.0
+    >>> sin(3 * math.pi / 2)
+    -1.0
+    """
+    x = x * math.pi / 180
+    value = x
+    sign = -1
+    n = 200  # precision
+    i = 3
+    while i < n:
+        value = value + (math.pow(x, i) / faktorial(i) * sign)
+        i = i + 2
+        sign = sign * -1
+
+    return value
+
+import math
+
+def tan(x: float) -> float:
+    """
+    Calculates the tangent of an angle in radians.
+
+    Args:
+        x (float): The angle in radians.
+
+    Returns:
+        float: The tangent of the given angle.
+
+    Examples:
+    >>> tan(math.pi / 4)
+    1.0
+    >>> tan(0)
+    0.0
+    >>> tan(math.pi / 2)
+    float('inf')
+    """
+    try:
+        # Handle special cases
+        if x == math.pi / 2:
+            return float("inf")
+        if x == -math.pi / 2:
+            return float("-inf")
+
+        # Calculate tangent using sin and cos
+        return math.sin(x) / math.cos(x)
+    except ZeroDivisionError:
+        # Handle invalid input (division by zero)
+        raise ValueError("Cannot calculate tangent for x = 0")
+
+
+def parse_args(args):
+    parser = argparse.ArgumentParser(description="Just a Fibonacci demonstration")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"{__version__}",
+    )
+    parser.add_argument(dest="n", help="n-th Fibonacci number", type=int, metavar="INT")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="loglevel",
+        help="set loglevel to INFO",
+        action="store_const",
+        const=logging.INFO,
+    )
+    parser.add_argument(
+        "-vv",
+        "--very-verbose",
+        dest="loglevel",
+        help="set loglevel to DEBUG",
+        action="store_const",
+        const=logging.DEBUG,
+    )
+    return parser.parse_args(args)
+
+
+def setup_logging(loglevel):
+    """Setup basic logging
+
+    Args:
+      loglevel (int): minimum loglevel for emitting messages
+    """
+    logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
+    logging.basicConfig(
+        level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+
+def main(args):
+    args = parse_args(args)
+    setup_logging(args.loglevel)
+    _logger.debug("Starting crazy calculations...")
+    print(f"The {args.n}-th sin is {sin(args.n)}, The {args.n}-th cos is {cos(args.n)}, The {args.n}-th tan is {tan(args.n)}")
+    _logger.info("Script ends here")
+
+
+def run():
+    """Calls :func:`main` passing the CLI arguments extracted from :obj:`sys.argv`
+
+    This function can be used as entry point to create console scripts with setuptools.
+    """
+    main(sys.argv[1:])
+
+
+if __name__ == "__main__":
+    run()

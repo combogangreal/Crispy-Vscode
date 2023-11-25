@@ -1,0 +1,7 @@
+"""
+
+$name - $description
+
+"""
+
+from . import skeleton
